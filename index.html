@@ -3,61 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>נדב והמחיר העדכני של הביטקוין</title>
+    <title>מחיר הביטקוין העדכני</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            margin: 0;
+            padding: 20px;
             background-color: #f0f0f0;
         }
+        h1 {
+            color: #333;
+        }
         #priceContainer {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 400px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a4a4a;
+            margin: 20px 0;
         }
         img {
-            max-width: 200px;
-            border-radius: 50%;
+            max-width: 300px;
+            border-radius: 10px;
             margin-top: 20px;
+        }
+        #lastUpdated {
+            font-style: italic;
+            color: #666;
         }
     </style>
 </head>
 <body>
     <h1>נדב בדק ומחיר הביטקוין העדכני הוא:</h1>
-    <div id="priceContainer">
-        <p id="priceDollar"></p>
-        <p id="priceShekels"></p>
-    </div>
-    <img src="nadav.jpg" alt="תמונה של נדב">
+
+    <div id="priceContainer">טוען מחיר...</div>
+
+    <p>עודכן לאחרונה: <span id="lastUpdated"></span></p>
+
+    <img src="nadav.jpg" alt="תמונה של נדב" />
 
     <script>
-        async function fetchBitcoinPrice() {
-            try {
-                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,ils');
-                const data = await response.json();
-                return data.bitcoin;
-            } catch (error) {
-                console.error('שגיאה בקבלת מחיר הביטקוין:', error);
-                return null;
-            }
+        function updateBitcoinPrice() {
+            fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('priceContainer').innerHTML = `$${data.bitcoin.usd}`;
+                    document.getElementById('lastUpdated').textContent = new Date().toLocaleString('he-IL');
+                })
+                .catch(error => {
+                    console.error('שגיאה בטעינת מחיר הביטקוין:', error);
+                    document.getElementById('priceContainer').innerHTML = 'לא ניתן לטעון את המחיר כרגע';
+                });
         }
 
-        async function updatePrice() {
-            const prices = await fetchBitcoinPrice();
-            if (prices) {
-                document.getElementById('priceDollar').textContent = `$${Number(prices.usd).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                document.getElementById('priceShekels').textContent = `₪${Number(prices.ils).toLocaleString('he-IL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            } else {
-                document.getElementById('priceDollar').textContent = 'לא ניתן לקבל מחיר כרגע';
-                document.getElementById('priceShekels').textContent = 'נסה שוב מאוחר יותר';
-            }
-        }
-
-        // עדכון המחיר בטעינת העמוד ובכל 60 שניות
-        updatePrice();
-        setInterval(updatePrice, 60000);
+        updateBitcoinPrice();
+        setInterval(updateBitcoinPrice, 60000); // עדכון כל דקה
     </script>
 </body>
 </html>
