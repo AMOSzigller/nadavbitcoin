@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מחיר הביטקוין העדכני</title>
+    <title>Current Bitcoin Price</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,26 +39,35 @@
 
     <p>עודכן לאחרונה: <span id="lastUpdated"></span></p>
 
-    <img src="nadav.jpg" alt="תמונה של נדב" />
+    <img src="nadav.jpg" alt="Picture of Nadav" />
 
     <script>
+        // Function to add commas to large numbers
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Function to update Bitcoin price
         function updateBitcoinPrice() {
             fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,ils')
                 .then(response => response.json())
                 .then(data => {
-                    const usdPrice = data.bitcoin.usd.toFixed(2);
-                    const ilsPrice = data.bitcoin.ils.toFixed(2);
+                    const usdPrice = formatNumber(Math.round(data.bitcoin.usd));
+                    const ilsPrice = formatNumber(Math.round(data.bitcoin.ils));
                     document.getElementById('priceContainer').innerHTML = `$${usdPrice} / ₪${ilsPrice}`;
                     document.getElementById('lastUpdated').textContent = new Date().toLocaleString('he-IL');
                 })
                 .catch(error => {
-                    console.error('שגיאה בטעינת מחיר הביטקוין:', error);
-                    document.getElementById('priceContainer').innerHTML = 'לא ניתן לטעון את המחיר כרגע';
+                    console.error('Error loading Bitcoin price:', error);
+                    document.getElementById('priceContainer').innerHTML = 'Unable to load price at the moment';
                 });
         }
 
+        // Initial call to update price
         updateBitcoinPrice();
-        setInterval(updateBitcoinPrice, 60000); // עדכון כל דקה
+
+        // Set interval to update price every minute
+        setInterval(updateBitcoinPrice, 60000);
     </script>
 </body>
 </html>
