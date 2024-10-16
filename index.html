@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NadavStocks</title>
-<link rel="icon" href="favicon.ico" type="image/x-icon">
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,7 +21,22 @@
             font-size: 24px;
             font-weight: bold;
             color: #4a4a4a;
-            margin: 20px 0;
+            margin: 20px 0 10px 0;
+        }
+        #changeContainer {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .positive {
+            color: green;
+        }
+        .negative {
+            color: red;
+        }
+        .change-note {
+            font-size: 16px;
+            color: #666;
+            margin-right: 5px;
         }
         img {
             max-width: 300px;
@@ -38,38 +53,45 @@
     <h1>נדב בדק ומחיר הביטקוין העדכני הוא:</h1>
 
     <div id="priceContainer">טוען מחיר...</div>
+    <div id="changeContainer">
+        <span class="change-note">השינוי ב-24 השעות האחרונות:</span>
+        <span id="changeValue">טוען שינוי...</span>
+    </div>
 
     <p>עודכן לאחרונה: <span id="lastUpdated"></span></p>
 
-    <img src="nadav.jpg" alt="Picture of Nadav" />
+    <img src="nadav.jpg" alt="תמונה של נדב" />
 
     <script>
-        // Function to add commas to large numbers
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
-        // Function to update Bitcoin price
         function updateBitcoinPrice() {
-            fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,ils')
+            fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,ils&include_24hr_change=true')
                 .then(response => response.json())
                 .then(data => {
                     const usdPrice = formatNumber(Math.round(data.bitcoin.usd));
                     const ilsPrice = formatNumber(Math.round(data.bitcoin.ils));
+                    const change24h = data.bitcoin.usd_24h_change.toFixed(2);
+                    const changeClass = change24h >= 0 ? 'positive' : 'negative';
+                    const changeSymbol = change24h >= 0 ? '▲' : '▼';
+
                     document.getElementById('priceContainer').innerHTML = `$${usdPrice} / ₪${ilsPrice}`;
+                    document.getElementById('changeValue').innerHTML = `
+                        <span class="${changeClass}">${changeSymbol} ${Math.abs(change24h)}%</span>
+                    `;
                     document.getElementById('lastUpdated').textContent = new Date().toLocaleString('he-IL');
                 })
                 .catch(error => {
                     console.error('Error loading Bitcoin price:', error);
                     document.getElementById('priceContainer').innerHTML = 'Unable to load price at the moment';
+                    document.getElementById('changeValue').innerHTML = '';
                 });
         }
 
-        // Initial call to update price
         updateBitcoinPrice();
-
-        // Set interval to update price every minute
-        setInterval(updateBitcoinPrice, 60000);
+        setInterval(updateBitcoinPrice, 60000); // Update every minute
     </script>
 </body>
 </html>
