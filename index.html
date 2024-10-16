@@ -43,10 +43,12 @@
 
     <script>
         function updateBitcoinPrice() {
-            fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+            fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,ils')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('priceContainer').innerHTML = `$${data.bitcoin.usd}`;
+                    const usdPrice = data.bitcoin.usd.toFixed(2);
+                    const ilsPrice = data.bitcoin.ils.toFixed(2);
+                    document.getElementById('priceContainer').innerHTML = `$${usdPrice} / ₪${ilsPrice}`;
                     document.getElementById('lastUpdated').textContent = new Date().toLocaleString('he-IL');
                 })
                 .catch(error => {
